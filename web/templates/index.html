@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Packlisten-Editor</title>
+  <style>
+    :root {
+      --primary: #0088cc;
+      --danger: #e74c3c;
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --border: #e0e0e0;
+      --text: #1a1a1a;
+      --muted: #888;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: #1a1a2e; color: white;
+      padding: 12px 20px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    header h1 { font-size: 1.05rem; flex: 1; letter-spacing: 0.01em; }
+
+    .btn { padding: 7px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.5; cursor: default; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-danger  { background: var(--danger);  color: white; }
+    .btn-ghost   { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.35); text-decoration: none; display: inline-flex; align-items: center; }
+
+    main { max-width: 760px; margin: 24px auto; padding: 0 16px 60px; }
+
+    .list-card { background: var(--card); border-radius: var(--radius); box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 16px; overflow: hidden; }
+
+    .card-header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--border); background: #fafafa; }
+    .card-header input[name=key] {
+      font-family: monospace; font-size: 0.82rem; width: 130px;
+      background: #eef2ff; border: 1px solid #c7d0f8; border-radius: 5px;
+      padding: 5px 8px; color: #334;
+    }
+    .card-header input[name=title] { flex: 1; font-size: 0.98rem; font-weight: 600; border: 1px solid transparent; border-radius: 5px; padding: 5px 8px; background: transparent; }
+    .card-header input:focus { outline: none; border-color: var(--primary); background: white; }
+
+    .card-body { padding: 12px 14px; }
+
+    .aliases-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .aliases-row label { font-size: 0.78rem; color: var(--muted); white-space: nowrap; text-transform: uppercase; letter-spacing: 0.04em; }
+    .aliases-row input { flex: 1; font-size: 0.84rem; font-family: monospace; border: 1px solid var(--border); border-radius: 5px; padding: 5px 8px; background: #fafafa; }
+    .aliases-row input:focus { outline: none; border-color: var(--primary); background: white; }
+
+    .items-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .items-list { list-style: none; }
+
+    .item-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+    .drag-handle { cursor: grab; color: #ccc; user-select: none; font-size: 1rem; padding: 4px; line-height: 1; }
+    .drag-handle:active { cursor: grabbing; }
+    .item-row input { flex: 1; border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px; font-size: 0.9rem; }
+    .item-row input:focus { outline: none; border-color: var(--primary); }
+    .item-row.dragging { opacity: 0.35; }
+    .item-row.drag-over { border-top: 2px solid var(--primary); padding-top: 1px; }
+
+    .btn-icon { background: none; border: none; cursor: pointer; color: #ccc; font-size: 0.95rem; padding: 5px 7px; border-radius: 4px; line-height: 1; transition: color 0.15s, background 0.15s; }
+    .btn-icon:hover { color: var(--danger); background: #fef0ee; }
+
+    .add-item-btn {
+      margin-top: 8px; background: none; border: 1px dashed #ccc;
+      width: 100%; padding: 7px; border-radius: 6px;
+      cursor: pointer; color: var(--muted); font-size: 0.84rem;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .add-item-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    #add-list-btn {
+      display: block; width: 100%; padding: 14px;
+      border: 2px dashed #ccc; background: none;
+      border-radius: var(--radius); cursor: pointer;
+      color: var(--muted); font-size: 0.92rem;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    #add-list-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #1e3a2e; color: #7dffb3; border-radius: 8px;
+      padding: 12px 22px; font-size: 0.88rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+      white-space: nowrap; max-width: 90vw; text-align: center;
+    }
+    #toast.show { opacity: 1; }
+    #toast.error { background: #3a1e1e; color: #ffb3b3; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Packlisten-Editor</h1>
+  <button class="btn btn-primary" id="save-btn" onclick="save()">💾 Speichern</button>
+  <a href="/logout" class="btn btn-ghost">Logout</a>
+</header>
+
+<main>
+  <div id="lists-container"></div>
+  <button id="add-list-btn" onclick="addList()">＋ Neue Liste hinzufügen</button>
+</main>
+
+<div id="toast"></div>
+
+<script>
+let lists = []; // [{key, title, aliases:[], items:[]}]
+
+async function load() {
+  const res = await fetch('/api/lists');
+  const data = await res.json();
+  lists = Object.entries(data).map(([key, val]) => ({
+    key,
+    title: val.title ?? '',
+    aliases: val.aliases ?? [],
+    items: (val.items ?? []).map(String),
+  }));
+  render();
+}
+
+function render() {
+  const c = document.getElementById('lists-container');
+  c.innerHTML = '';
+  lists.forEach((list, idx) => c.appendChild(buildCard(list, idx)));
+}
+
+function buildCard(list, idx) {
+  const card = document.createElement('div');
+  card.className = 'list-card';
+  card.innerHTML = `
+    <div class="card-header">
+      <input name="key" value="${esc(list.key)}" placeholder="schlüssel"
+             title="Stichwort (nur a-z, 0-9, -, _)"
+             onchange="lists[${idx}].key = this.value.trim()">
+      <input name="title" value="${esc(list.title)}" placeholder="Titel (z. B. 🏊 Schwimmen)"
+             oninput="lists[${idx}].title = this.value">
+      <button class="btn btn-danger" style="font-size:0.8rem;padding:5px 10px"
+              onclick="deleteList(${idx})" title="Liste löschen">🗑 Löschen</button>
+    </div>
+    <div class="card-body">
+      <div class="aliases-row">
+        <label>Aliases</label>
+        <input value="${esc(list.aliases.join(', '))}"
+               placeholder="pool, swim, ..."
+               title="Kommagetrennte Alternativbegriffe"
+               oninput="lists[${idx}].aliases = this.value.split(',').map(s=>s.trim()).filter(Boolean)">
+      </div>
+      <div class="items-label">Items</div>
+      <ul class="items-list" id="items-${idx}">
+        ${list.items.map((item, i) => itemRowHtml(idx, i, item)).join('')}
+      </ul>
+      <button class="add-item-btn" onclick="addItem(${idx})">＋ Item hinzufügen</button>
+    </div>`;
+  return card;
+}
+
+function itemRowHtml(li, ii, value) {
+  return `<li class="item-row" draggable="true"
+    ondragstart="dragStart(event,${li},${ii})"
+    ondragover="dragOver(event)"
+    ondrop="drop(event,${li},${ii})"
+    ondragend="dragEnd(event)">
+    <span class="drag-handle" title="Ziehen zum Sortieren">⠿</span>
+    <input value="${esc(value)}" placeholder="Item"
+           oninput="lists[${li}].items[${ii}] = this.value">
+    <button class="btn-icon" onclick="deleteItem(${li},${ii})" title="Entfernen">✕</button>
+  </li>`;
+}
+
+function esc(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function addItem(li) {
+  lists[li].items.push('');
+  render();
+  const ul = document.getElementById(`items-${li}`);
+  if (ul) { const inputs = ul.querySelectorAll('input'); inputs[inputs.length-1]?.focus(); }
+}
+
+function deleteItem(li, ii) {
+  lists[li].items.splice(ii, 1);
+  render();
+}
+
+function deleteList(idx) {
+  if (!confirm(`Liste "${lists[idx].key}" wirklich löschen?`)) return;
+  lists.splice(idx, 1);
+  render();
+}
+
+function addList() {
+  lists.push({ key: 'neue-liste', title: '', aliases: [], items: [] });
+  render();
+  const cards = document.querySelectorAll('.list-card');
+  cards[cards.length-1]?.querySelector('input[name=key]')?.focus();
+}
+
+// Drag & drop
+let dragSrc = null;
+
+function dragStart(e, li, ii) {
+  dragSrc = {li, ii};
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.item-row').forEach(el => el.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+function drop(e, li, ii) {
+  e.preventDefault();
+  if (!dragSrc || dragSrc.li !== li || dragSrc.ii === ii) return;
+  const [moved] = lists[li].items.splice(dragSrc.ii, 1);
+  lists[li].items.splice(ii, 0, moved);
+  render();
+}
+function dragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.item-row').forEach(el => el.classList.remove('drag-over'));
+  dragSrc = null;
+}
+
+async function save() {
+  const keyRe = /^[a-z0-9_-]+$/;
+  const seen = new Set();
+  for (const list of lists) {
+    const k = list.key.trim();
+    if (!k || !keyRe.test(k)) { alert(`Ungültiger Schlüssel: "${k}"\nNur a-z, 0-9, - und _ erlaubt.`); return; }
+    if (seen.has(k)) { alert(`Doppelter Schlüssel: "${k}"`); return; }
+    seen.add(k);
+  }
+
+  const data = {};
+  for (const {key, title, aliases, items} of lists) {
+    const entry = { title, items: items.filter(s => s.trim()) };
+    if (aliases.length) entry.aliases = aliases;
+    data[key] = entry;
+  }
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    const res = await fetch('/api/lists', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || res.statusText);
+    toast(`✅ ${json.count} Listen gespeichert — sende /reload im Telegram-Chat`);
+  } catch(err) {
+    toast(`❌ ${err.message}`, true);
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Speichern';
+  }
+}
+
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = isError ? 'error show' : 'show';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = isError ? 'error' : '', 4500);
+}
+
+load();
+</script>
+</body>
+</html>

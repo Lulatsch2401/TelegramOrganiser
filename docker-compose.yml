@@ -5,3 +5,13 @@ services:
     volumes:
       - ./lists.yaml:/app/lists.yaml:ro
     restart: unless-stopped
+
+  web:
+    build: .
+    command: python -m web.app
+    env_file: .env
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./lists.yaml:/app/lists.yaml
+    restart: unless-stopped

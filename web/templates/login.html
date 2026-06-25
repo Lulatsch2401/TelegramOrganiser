@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Packlisten-Editor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0f2f5; display: flex; align-items: center;
+      justify-content: center; min-height: 100vh;
+    }
+    .box {
+      background: white; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 40px; width: 340px;
+    }
+    h1 { text-align: center; font-size: 1.3rem; margin-bottom: 24px; color: #1a1a2e; }
+    input[type=password] {
+      width: 100%; padding: 10px 12px; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 1rem; margin-bottom: 12px;
+    }
+    input[type=password]:focus { outline: none; border-color: #0088cc; }
+    button {
+      width: 100%; padding: 10px; background: #0088cc;
+      color: white; border: none; border-radius: 6px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+    }
+    button:hover { background: #0070aa; }
+    .error { color: #e74c3c; font-size: 0.85rem; margin-bottom: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>📋 Packlisten-Editor</h1>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <form method="post">
+      <input type="password" name="password" placeholder="Passwort" autofocus>
+      <button type="submit">Einloggen</button>
+    </form>
+  </div>
+</body>
+</html>
