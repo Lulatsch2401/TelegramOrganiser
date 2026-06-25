@@ -1,6 +1,6 @@
 # Telegram Packlisten-Bot — Build-Spec für Claude Code
 
-> Bau dieses Projekt von Grund auf in diesem (leeren) Verzeichnis. Initialisiere Git,
+> Bau dieses Projekt von Grund auf in diesem (leeren) Verzeichnis. 
 > erstelle die Struktur, implementiere den Bot, schreibe Dockerfile + docker-compose
 > für einen Raspberry Pi 5 (ARM64) und eine README mit dem Deployment-Flow.
 > Am Ende: ein lauffähiges Repo, das ich auf dem Mac testen und per `git pull` auf dem Pi

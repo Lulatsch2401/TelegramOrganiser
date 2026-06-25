@@ -1,0 +1,7 @@
+services:
+  bot:
+    build: .
+    env_file: .env
+    volumes:
+      - ./lists.yaml:/app/lists.yaml:ro
+    restart: unless-stopped

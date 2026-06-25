@@ -1,0 +1,34 @@
+schwimmen:
+  title: "🏊 Schwimmen"
+  aliases: [pool, baden, swim]
+  items:
+    - Badehose
+    - Schwimmbrille
+    - Handtuch
+    - Badekappe
+    - 1-Euro-Stück (Spind)
+
+rennrad:
+  title: "🚴 Rennrad"
+  aliases: [rr, radfahren]
+  items:
+    - Helm
+    - Trikot
+    - Ersatzschlauch
+    - Multitool
+    - Pumpe
+    - Trinkflasche
+    - Energieriegel
+
+wandern:
+  title: "🥾 Wandern"
+  aliases: [hiking, hike]
+  items:
+    - Wanderschuhe
+    - Rucksack
+    - Regenjacke
+    - Trinkflasche
+    - Brotzeit
+    - Sonnencreme
+    - Erste-Hilfe-Set
+    - Karte / GPS
